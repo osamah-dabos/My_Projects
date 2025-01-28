@@ -1,0 +1,64 @@
+from rembg import remove
+from telegram import Update
+from PIL import Image
+import os
+from telegram.ext import ApplicationBuilder,CommandHandler,ContextTypes,MessageHandler,filters
+
+TOKEN="7052730108:AAHQCLnvMnu06KJKRajdrTKNcu8bM124a-k"
+
+
+async def nar(update:Update,context:ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id,
+    text='ناروتو عمك')
+async def help(update:Update,context:ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id,
+    text="Hey ! \nI Can Help You With Removing Background For Any Picture You Send Me !  ")
+
+async def start(update:Update,context:ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id,text="send a image to remove its background")
+
+async def process_image(photo_name:str):
+    name,_=os.path.splitext(photo_name)
+    output_photo_path=f'./processed/{name}.png'
+    input=Image.open(f'./temps/{photo_name}')
+    output=remove(input)
+    output.save(output_photo_path)
+    os.remove(f'./temps/{photo_name}')
+    return output_photo_path
+async def handle_message(update:Update,context:ContextTypes.DEFAULT_TYPE):
+    if filters.PHOTO.check_update(update):
+        file_id=update.message.photo[-1].file_id
+        unique_file_id=update.message.photo[-1].file_unique_id
+        photo_name=f"{unique_file_id}.jpg"
+        photo_file=context.bot.get_file(file_id)
+    elif filters.Document.IMAGE:
+        file_id=update.message.document.file_id
+        _,f_ext=os.path.splitext(update.message.document.file_name)
+        unique_file_id=update.message.document.file_unique_id
+        photo_name=f"{unique_file_id}.{f_ext}"
+    
+    photo_file= await context.bot.get_file(file_id)
+    await photo_file.download_to_drive(custom_path=f'./temps/{photo_name}')
+    await context.bot.send_message(chat_id=update.effective_chat.id,text="Work in process lend us some time ;)")
+    processed_image= await process_image(photo_name)    
+    await context.bot.send_document(chat_id=update.effective_chat.id,document=processed_image)
+    os.remove(processed_image)
+
+
+if __name__=='__main__':
+    
+    Application=ApplicationBuilder().token(TOKEN).build()
+#Handlers
+    anime_handler=CommandHandler('Anime',nar)
+    helpHandler=CommandHandler('help',help)
+    StartHandler=CommandHandler('start',start)
+    Application.add_handler(helpHandler)
+    Application.add_handler(StartHandler)
+    Message_handler=MessageHandler(filters.PHOTO|filters.Document.IMAGE,handle_message)
+    Application.add_handler(Message_handler)
+    Application.add_handler(anime_handler)
+    Application.run_polling()
+
+
+
+    
