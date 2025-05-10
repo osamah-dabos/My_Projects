@@ -10,9 +10,9 @@ from telegram.ext import (
 import aiohttp
 
 # Replace with your actual tokens
-TELEGRAM_BOT_TOKEN = '7986330422:AAGO3pR8twGJQr4-IKTABZpy6Gt8ssS5rWI'
-DEEPSEEK_TOKEN = 'sk-e3fc19d69e374ccba47fb92c5053a21a'
-DEEPSEEK_API_ENDPOINT = 'https://api.deepseek.com/chat/completions'
+TELEGRAM_BOT_TOKEN =
+DEEPSEEK_TOKEN = 
+DEEPSEEK_API_ENDPOINT = 
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
